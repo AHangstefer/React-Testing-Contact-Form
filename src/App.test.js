@@ -1,7 +1,8 @@
 import React from "react";
-import { render, getByRole, getAllByPlaceholderText, getByLabelText, getByPlaceholderText, getAllByLabelText } from "@testing-library/react";
+import { render, getByRole, getAllByPlaceholderText, getByLabelText, getByPlaceholderText, getAllByLabelText, fireEvent } from "@testing-library/react";
 import App from "./App";
 import ContactForm from "./components/ContactForm"
+import { act, async } from "react-dom/test-utils";
 
 test("renders App without crashing", () => {
    render(<App />);
@@ -21,7 +22,7 @@ test("there are inputs", () =>{
 });
 
 test("testing input behavior", ()=>{
-  const {getByLabelText} = render(<App/>)
+  const {getByLabelText} = render(<ContactForm/>)
   //getByLabelText(/Email*/)
   //getByLabelText(/email/i)
 })
@@ -53,3 +54,60 @@ test("strings in forms?", ()=>{
   //expect(firstName).toBe(String);
   //expect(firstName).toBeEmpty();
 })
+
+test("Are the forms Empty?", ()=>{
+  const {getByPlaceholderText} = render(<App/>)
+  const firstName = getByPlaceholderText(/Edd/i);
+  const lastName = getByPlaceholderText(/Burke/i)
+  expect(firstName).toBeEmpty();
+  expect(lastName).toBeEmpty();
+})
+
+test("get by Role", ()=> {
+  const {getbyRole} =render(<App/>)
+ // let firstname = getByRole('textbox', {name: /first name/i})
+})
+
+
+
+
+describe("firstName", ()=> {
+
+  describe("with valid name length", ()=>{
+
+    it("should pass with no error", async () =>{
+      const mockOnSubmit =jest.fn()
+      const {getByPlaceholderText, getAllByTestId} = render(<App onSubmit={mockOnSubmit}/>)
+      
+     await act(async () => {
+      fireEvent.change(getByPlaceholderText(/Edd/i), {target:{value: "Sam"}})
+     // fireEvent.click(getByTestId("submit"))
+    })
+      //expect(mockOnSubmit).toHaveBeenCalled() 
+  })
+})
+
+  describe("with invalid name length", ()=>{
+
+    it("should show error", async ()=>{
+      const mockOnSubmit =jest.fn()
+      const {getByPlaceholderText, container} = render(<App/>)
+      //const firstName = getByPlaceholderText(/Edd/i);
+
+      await act (async ()=> {
+        const nameInput = getByPlaceholderText(/Edd/i)
+       fireEvent.change(nameInput, {target:{value: "Rebecca"}})
+       fireEvent.blur(nameInput)
+       })
+
+       expect(container.innerHTML).toMatch("Looks like there was an error: maxLength")
+    })
+      
+  })
+
+})
+
+
+
+
+
